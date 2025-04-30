@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flashcard Kanji</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      padding: 2rem;
+      background-color: #f0f0f0;
+    }
+
+    .card {
+      width: 180px;
+      height: 220px;
+      perspective: 1000px;
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+      cursor: pointer;
+      border-radius: 12px;
+    }
+
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #c5b8ff, #a48dff);
+      color: black;
+    }
+
+    .card-front .kanji {
+      font-size: 2.5rem;
+      font-weight: bold;
+    }
+
+    .card-front .hiragana {
+      font-size: 1rem;
+      color: rgba(0, 0, 0, 0.4);
+      margin-top: 0.5rem;
+    }
+
+    .card-back {
+      background-color: white;
+      transform: rotateY(180deg);
+      font-size: 1.2rem;
+      padding: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+  <script>
+    const data = [
+    { "kanji": "一台", "hiragana": "いちだい", "arti": "Satu buah" },
+    { "kanji": "石", "hiragana": "いし", "arti": "Batu" },
+    { "kanji": "お手洗い", "hiragana": "おてあらい", "arti": "Toilet" },
+    { "kanji": "お世話", "hiragana": "おせわ", "arti": "Perawatan, merawat" },
+    { "kanji": "お正月", "hiragana": "おしょうがつ", "arti": "Tahun baru" },
+    { "kanji": "お茶", "hiragana": "おちゃ", "arti": "Teh" },
+    { "kanji": "お土産", "hiragana": "おみやげ", "arti": "Oleh-oleh" },
+    { "kanji": "お米", "hiragana": "おこめ", "arti": "Beras" },
+    { "kanji": "安心", "hiragana": "あんしん", "arti": "Tenang" },
+    { "kanji": "暗い", "hiragana": "くらい", "arti": "Gelap" },
+    { "kanji": "以上", "hiragana": "いじょう", "arti": "Lebih dari～" },
+    { "kanji": "意見", "hiragana": "いけん", "arti": "Pendapat" },
+    { "kanji": "意味", "hiragana": "いみ", "arti": "Arti" },
+    { "kanji": "医学", "hiragana": "いがく", "arti": "Ilmu kedokteran" },
+    { "kanji": "医者", "hiragana": "いしゃ", "arti": "Dokter" },
+    { "kanji": "一回", "hiragana": "いっかい", "arti": "Satu kali" },
+    { "kanji": "一度", "hiragana": "いちど", "arti": "Sekali" },
+    { "kanji": "引き出し", "hiragana": "ひきだし", "arti": "Laci" },
+    { "kanji": "引く", "hiragana": "ひく", "arti": "Menarik（Pintu）" },
+    { "kanji": "飲む", "hiragana": "のむ", "arti": "Minum" },
+    { "kanji": "運ぶ", "hiragana": "はこぶ", "arti": "Membawa, mengangkut" },
+    { "kanji": "運転", "hiragana": "うんてん", "arti": "Menyetir" },
+    { "kanji": "運動", "hiragana": "うんどう", "arti": "Olah raga" },
+    { "kanji": "映画", "hiragana": "えいが", "arti": "Film bioskop" },
+    { "kanji": "映画館", "hiragana": "えいがかん", "arti": "Gedung bioskop" },
+    { "kanji": "英語", "hiragana": "えいご", "arti": "Bahasa inggris" },
+    { "kanji": "駅", "hiragana": "えき", "arti": "Stasiun" },
+    { "kanji": "遠い", "hiragana": "とおい", "arti": "Jauh" },
+    { "kanji": "遠慮", "hiragana": "えんりょ", "arti": "Sungkan" },
+    { "kanji": "屋上", "hiragana": "おくじょう", "arti": "Atap" },
+    { "kanji": "音", "hiragana": "おと", "arti": "Suara" },
+    { "kanji": "音楽", "hiragana": "おんがく", "arti": "Musik" },
+    { "kanji": "夏", "hiragana": "なつ", "arti": "Musim Panas" },
+    { "kanji": "夏休み", "hiragana": "なつやすみ", "arti": "Liburan musim panas" },
+    { "kanji": "家族", "hiragana": "かぞく", "arti": "Keluarga" },
+    { "kanji": "科学", "hiragana": "かがく", "arti": "Ilmiah" },
+    { "kanji": "歌う", "hiragana": "うたう", "arti": "Menyanyi" },
+    { "kanji": "歌手", "hiragana": "かしゅ", "arti": "Penyanyi" },
+    { "kanji": "火事", "hiragana": "かじ", "arti": "Kebakaran" },
+    { "kanji": "花", "hiragana": "はな", "arti": "Bunga" },
+    { "kanji": "画家", "hiragana": "がか", "arti": "Pelukis" },
+    { "kanji": "会う", "hiragana": "あう", "arti": "Bertemu" },
+    { "kanji": "会議室", "hiragana": "かいぎしつ", "arti": "Ruang rapat" },
+    { "kanji": "会社", "hiragana": "かいしゃ", "arti": "Perusahaan" },
+    { "kanji": "会社員", "hiragana": "かいしゃいん", "arti": "Pegawai perusahaan" },
+    { "kanji": "会話", "hiragana": "かいわ", "arti": "Percakapan" },
+    { "kanji": "海", "hiragana": "うみ", "arti": "Laut" },
+    { "kanji": "開く", "hiragana": "あく", "arti": "Buka" },
+    { "kanji": "開ける", "hiragana": "あける", "arti": "Membuka" },
+    { "kanji": "学生", "hiragana": "がくせい", "arti": "Mahasiswa" },
+    { "kanji": "楽しい", "hiragana": "たのしい", "arti": "Senang" },
+    { "kanji": "寒い", "hiragana": "さむい", "arti": "Dingin（Cuaca）" },
+    { "kanji": "漢字", "hiragana": "かんじ", "arti": "Huruf kanji" },
+    { "kanji": "間に合う", "hiragana": "まにあう", "arti": "Tepat waktu" },
+    { "kanji": "顔", "hiragana": "かお", "arti": "Wajah" },
+    { "kanji": "帰る", "hiragana": "かえる", "arti": "Pulang" },
+    { "kanji": "起きる", "hiragana": "おきる", "arti": "Bangun dari tidur" },
+    { "kanji": "急ぐ", "hiragana": "いそぐ", "arti": "Terburu-buru" },
+    { "kanji": "急に", "hiragana": "きゅうに", "arti": "Tiba-tiba" },
+    { "kanji": "急行", "hiragana": "きゅうこう", "arti": "Express（Kereta）" },
+    { "kanji": "去年", "hiragana": "きょねん", "arti": "Tahun lalu" },
+    { "kanji": "魚", "hiragana": "さかな", "arti": "Ikan" },
+    { "kanji": "京都", "hiragana": "きょうと", "arti": "Kota Kyouto" },
+    { "kanji": "強い", "hiragana": "つよい", "arti": "Kuat" },
+    { "kanji": "教える", "hiragana": "おしえる", "arti": "Mengajar, memberitahu" },
+    { "kanji": "教室", "hiragana": "きょうしつ", "arti": "Ruang kelas" },
+    { "kanji": "近い", "hiragana": "ちかい", "arti": "Dekat" },
+    { "kanji": "近所", "hiragana": "きんじょ", "arti": "Lingkungan Sekitar" },
+    { "kanji": "銀行", "hiragana": "ぎんこう", "arti": "Bank" },
+    { "kanji": "空", "hiragana": "そら", "arti": "Langit" },
+    { "kanji": "空く", "hiragana": "あく", "arti": "Kosong" },
+    { "kanji": "空港", "hiragana": "くうこう", "arti": "Bandara" },
+    { "kanji": "兄", "hiragana": "あに", "arti": "Kakak laki-laki saya" },
+    { "kanji": "形", "hiragana": "かたち", "arti": "Bentuk" },
+    { "kanji": "計画", "hiragana": "けいかく", "arti": "Rencana" },
+    { "kanji": "軽い", "hiragana": "かるい", "arti": "Ringan" },
+    { "kanji": "鶏肉", "hiragana": "とりにく", "arti": "Daging ayam" },
+    { "kanji": "建物", "hiragana": "たてもの", "arti": "Gedung" },
+    { "kanji": "犬", "hiragana": "いぬ", "arti": "Anjing" },
+    { "kanji": "研究", "hiragana": "けんきゅう", "arti": "Penelitian" },
+    { "kanji": "県", "hiragana": "けん", "arti": "Prefektur" },
+    { "kanji": "見物", "hiragana": "けんぶつ", "arti": "Wisata" },
+    { "kanji": "元気", "hiragana": "げんき", "arti": "Sehat" },
+    { "kanji": "古い", "hiragana": "ふるい", "arti": "Lama" },
+    { "kanji": "交通", "hiragana": "こうつう", "arti": "Lalu lintas" },
+    { "kanji": "光る", "hiragana": "ひかる", "arti": "Bersinar" },
+    { "kanji": "好き", "hiragana": "すき", "arti": "Suka" },
+    { "kanji": "工事中", "hiragana": "こうじちゅう", "arti": "Dalam pembangunan" },
+    { "kanji": "工場", "hiragana": "こうじょう", "arti": "Pabrik" },
+    { "kanji": "広い", "hiragana": "ひろい", "arti": "Luas" },
+    { "kanji": "考える", "hiragana": "かんがえる", "arti": "Memikirkan" },
+    { "kanji": "降る", "hiragana": "ふる", "arti": "Turun（Hujan）" },
+    { "kanji": "国", "hiragana": "くに", "arti": "Negara" },
+    { "kanji": "国民", "hiragana": "こくみん", "arti": "Rakyat" },
+    { "kanji": "黒い", "hiragana": "くろい", "arti": "Hitam" },
+    { "kanji": "今夜", "hiragana": "こんや", "arti": "Malam ini" },
+    { "kanji": "細い", "hiragana": "ほそい", "arti": "Tipis" },
+    { "kanji": "財布", "hiragana": "さいふ", "arti": "Dompet" },
+    { "kanji": "作る", "hiragana": "つくる", "arti": "Membuat" },
+    { "kanji": "産業", "hiragana": "さんぎょう", "arti": "Industri" },
+    { "kanji": "残念", "hiragana": "ざんねん", "arti": "Sayang" },
+    { "kanji": "仕事", "hiragana": "しごと", "arti": "Pekerjaan" },
+    { "kanji": "使い方", "hiragana": "つかいかた", "arti": "Cara menggunakan" },
+    { "kanji": "使う", "hiragana": "つかう", "arti": "Menggunakan" },
+    { "kanji": "始める", "hiragana": "はじめる", "arti": "Memulai" },
+    { "kanji": "姉", "hiragana": "あね", "arti": "Kakak perempuan saya" },
+    { "kanji": "姉妹", "hiragana": "しまい", "arti": "Saudara perempuan" },
+    { "kanji": "市長", "hiragana": "しちょう", "arti": "Walikota" },
+    { "kanji": "市民", "hiragana": "しみん", "arti": "Warga negara" },
+    { "kanji": "思う", "hiragana": "おもう", "arti": "Saya pikir" },
+    { "kanji": "止まる", "hiragana": "とまる", "arti": "Berhenti" },
+    { "kanji": "止める", "hiragana": "やめる", "arti": "Berhenti" },
+    { "kanji": "死ぬ", "hiragana": "しぬ", "arti": "Meninggal" },
+    { "kanji": "私", "hiragana": "わたし", "arti": "Saya" },
+    { "kanji": "紙", "hiragana": "かみ", "arti": "Kertas" },
+    { "kanji": "試験", "hiragana": "しけん", "arti": "Ujian" },
+    { "kanji": "事故", "hiragana": "じこ", "arti": "Kecelakaan" },
+    { "kanji": "持つ", "hiragana": "もつ", "arti": "Membawa" },
+    { "kanji": "時計", "hiragana": "とけい", "arti": "Jam" },
+    { "kanji": "自転車", "hiragana": "じてんしゃ", "arti": "Sepeda" },
+    { "kanji": "自動車", "hiragana": "じどうしゃ", "arti": "Mobil" },
+    { "kanji": "自分", "hiragana": "じぶん", "arti": "Diri sendiri" },
+    { "kanji": "辞典", "hiragana": "じてん", "arti": "Kamus" },
+    { "kanji": "質問", "hiragana": "しつもん", "arti": "Pertanyaan" },
+    { "kanji": "写真", "hiragana": "しゃしん", "arti": "Foto" },
+    { "kanji": "捨てる", "hiragana": "すてる", "arti": "Membuang" },
+    { "kanji": "謝る", "hiragana": "あやまる", "arti": "Meminta maaf" },
+    { "kanji": "借りる", "hiragana": "かりる", "arti": "Meminjam" },
+    { "kanji": "弱い", "hiragana": "よわい", "arti": "Lemah" },
+    { "kanji": "主人", "hiragana": "しゅじん", "arti": "Suami" },
+    { "kanji": "手元", "hiragana": "てもと", "arti": "Dekat" },
+    { "kanji": "首", "hiragana": "くび", "arti": "Leher" },
+    { "kanji": "受付", "hiragana": "うけつけ", "arti": "Resepsionis" },
+    { "kanji": "空き", "hiragana": "あき", "arti": "Musim gugur" },
+    { "kanji": "終わる", "hiragana": "おわる", "arti": "Selesai" },
+    { "kanji": "習う", "hiragana": "ならう", "arti": "Belajar" },
+    { "kanji": "日記", "hiragana": "にっき", "arti": "Buku harian" },
+    { "kanji": "集まる", "hiragana": "あつまる", "arti": "Berkumpul" },
+    { "kanji": "住む", "hiragana": "すむ", "arti": "Tinggal, Bertempat tinggal" },
+    { "kanji": "住所", "hiragana": "じゅうしょ", "arti": "Alamat" },
+    { "kanji": "重い", "hiragana": "おもい", "arti": "Berat" },
+    { "kanji": "出かける", "hiragana": "でかける", "arti": "Pergi keluar" },
+    { "kanji": "出発", "hiragana": "しゅっぱつ", "arti": "Berangkat" },
+    { "kanji": "所", "hiragana": "ところ", "arti": "Tempat" },
+    { "kanji": "暑い", "hiragana": "あつい", "arti": "Panas" },
+    { "kanji": "書く", "hiragana": "かく", "arti": "Menulis" },
+    { "kanji": "小説", "hiragana": "しょうせつ", "arti": "Novel" },
+    { "kanji": "小鳥", "hiragana": "ことり", "arti": "Burung Kecil" },
+    { "kanji": "少ない", "hiragana": "すくない", "arti": "Sedikit" },
+    { "kanji": "上手", "hiragana": "じょうず", "arti": "Pandai" },
+    { "kanji": "上着", "hiragana": "うわぎ", "arti": "Jas" },
+    { "kanji": "乗る", "hiragana": "のる", "arti": "Naik" },
+    { "kanji": "飾る", "hiragana": "かざる", "arti": "Mendekorasi, menghias" },
+    { "kanji": "色", "hiragana": "いろ", "arti": "Warna" },
+    { "kanji": "食事", "hiragana": "しょくじ", "arti": "Makan" },
+    { "kanji": "食堂", "hiragana": "しょくどう", "arti": "Ruang Makan/Kantin" },
+    { "kanji": "食料品", "hiragana": "しょくりょうひん", "arti": "Toko bahan makanan" },
+    { "kanji": "信号", "hiragana": "しんごう", "arti": "Tanda" },
+    { "kanji": "新しい", "hiragana": "あたらしい", "arti": "Baru" },
+    { "kanji": "新聞", "hiragana": "しんぶん", "arti": "Koran" },
+    { "kanji": "森", "hiragana": "もり", "arti": "Hutan" },
+    { "kanji": "親しい", "hiragana": "したしい", "arti": "Dekat, akrab, karib" },
+    { "kanji": "親切", "hiragana": "しんせつ", "arti": "Ramah" },
+    { "kanji": "進む", "hiragana": "すすむ", "arti": "Memajukan" },
+    { "kanji": "人間", "hiragana": "にんげん", "arti": "Manusia" },
+    { "kanji": "人形", "hiragana": "にんぎょう", "arti": "Boneka" },
+    { "kanji": "図書館", "hiragana": "としょかん", "arti": "Perpustakaan" },
+    { "kanji": "水道", "hiragana": "すいどう", "arti": "Perairan, air ledeng/PDAM" },
+    { "kanji": "世界", "hiragana": "せかい", "arti": "Dunia" },
+    { "kanji": "世界地図", "hiragana": "せかいちず", "arti": "Peta Dunia" },
+    { "kanji": "世界中", "hiragana": "せかいじゅう", "arti": "Seluruh dunia" },
+    { "kanji": "世話", "hiragana": "せわ", "arti": "Perawatan" },
+    { "kanji": "正しい", "hiragana": "ただしい", "arti": "Benar" },
+    { "kanji": "眠い", "hiragana": "ねむい", "arti": "Mengantuk" },
+    { "kanji": "生活", "hiragana": "せいかつ", "arti": "Kehidupan" },
+    { "kanji": "場所", "hiragana": "ばしょ", "arti": "Tempat" },
+    { "kanji": "声", "hiragana": "こえ", "arti": "Suara" },
+    { "kanji": "西洋", "hiragana": "せいよう", "arti": "Barat" },
+    { "kanji": "赤い", "hiragana": "あかい", "arti": "Merah" },
+    { "kanji": "切る", "hiragana": "きる", "arti": "Memotong" },
+    { "kanji": "切って", "hiragana": "きって", "arti": "Perangko" },
+    { "kanji": "説明", "hiragana": "せつめい", "arti": "Penjelasan" },
+    { "kanji": "説明書", "hiragana": "せつめいしょ", "arti": "Buku panduan" },
+    { "kanji": "雪", "hiragana": "ゆき", "arti": "Salju" },
+    { "kanji": "洗う", "hiragana": "あらう", "arti": "Mencuci" },
+    { "kanji": "走る", "hiragana": "はしる", "arti": "Berlari" },
+    { "kanji": "送る", "hiragana": "おくる", "arti": "Mengirim" },
+    { "kanji": "村", "hiragana": "むら", "arti": "Desa" },
+    { "kanji": "多い", "hiragana": "おおい", "arti": "Banyak" },
+    { "kanji": "太い", "hiragana": "ふとい", "arti": "Tebal, gemuk" },
+    { "kanji": "体", "hiragana": "からだ", "arti": "Badan" },
+    { "kanji": "待ち合わせ", "hiragana": "まちあわせ", "arti": "Pertemuan" },
+    { "kanji": "待つ", "hiragana": "まつ", "arti": "Menunggu" },
+    { "kanji": "貸す", "hiragana": "かす", "arti": "Meminjamkan" },
+    { "kanji": "代わり", "hiragana": "かわり", "arti": "Mengganti" },
+    { "kanji": "台風", "hiragana": "たいふう", "arti": "Badai" },
+    { "kanji": "大使館", "hiragana": "たいしかん", "arti": "Kedutaan" },
+    { "kanji": "大事", "hiragana": "だいじ", "arti": "Penting" },
+    { "kanji": "大切", "hiragana": "たいせつ", "arti": "Penting" },
+    { "kanji": "大変", "hiragana": "たいへん", "arti": "Sangat berat, susah, sulit" },
+    { "kanji": "短い", "hiragana": "みじかい", "arti": "Pendek" },
+    { "kanji": "知る", "hiragana": "しる", "arti": "Mengetahui" },
+    { "kanji": "地下", "hiragana": "ちか", "arti": "Bawah tanah" },
+    { "kanji": "地図", "hiragana": "ちず", "arti": "Peta" },
+    { "kanji": "地理", "hiragana": "ちり", "arti": "Geografi" },
+    { "kanji": "池", "hiragana": "いけ", "arti": "Kolam" },
+    { "kanji": "茶色", "hiragana": "ちゃいろ", "arti": "Coklat" },
+    { "kanji": "着く", "hiragana": "つく", "arti": "Tiba, datang" },
+    { "kanji": "着る", "hiragana": "きる", "arti": "Memakai" },
+    { "kanji": "中学校", "hiragana": "ちゅうがっこう", "arti": "SMP" },
+    { "kanji": "中止", "hiragana": "ちゅうし", "arti": "Berhenti, batal" },
+    { "kanji": "昼間", "hiragana": "ひるま", "arti": "Siang hari" },
+    { "kanji": "昼休み", "hiragana": "ひるやすみ", "arti": "Istirahat siang" },
+    { "kanji": "注意", "hiragana": "ちゅうい", "arti": "Peringatan" },
+    { "kanji": "駐車場", "hiragana": "ちゅうしゃじょう", "arti": "Tempat Parkir" },
+    { "kanji": "朝", "hiragana": "あさ", "arti": "Pagi" },
+    { "kanji": "町", "hiragana": "まち", "arti": "Kota" },
+    { "kanji": "鳥", "hiragana": "とり", "arti": "Burung" },
+    { "kanji": "通う", "hiragana": "かよう", "arti": "Pulang-pergi" },
+    { "kanji": "通り", "hiragana": "とおり", "arti": "Jalan" },
+    { "kanji": "徹る", "hiragana": "とおる", "arti": "Melewati" },
+    { "kanji": "低い", "hiragana": "ひくい", "arti": "Rendah" },
+    { "kanji": "弟", "hiragana": "おとうと", "arti": "Adik laki-laki" },
+    { "kanji": "泥棒", "hiragana": "どろぼう", "arti": "Pencuri" },
+    { "kanji": "店員", "hiragana": "てんいん", "arti": "Pramuniaga" },
+    { "kanji": "途中", "hiragana": "とちゅう", "arti": "Di tengah perjalanan" },
+    { "kanji": "都会", "hiragana": "とかい", "arti": "Kota" },
+    { "kanji": "都合", "hiragana": "つごう", "arti": "Kenyamanan" },
+    { "kanji": "土曜日", "hiragana": "どようび", "arti": "Hari Sabtu" },
+    { "kanji": "答え", "hiragana": "こたえ", "arti": "Jawaban" },
+    { "kanji": "答える", "hiragana": "こたえる", "arti": "Menjawab" },
+    { "kanji": "頭", "hiragana": "あたま", "arti": "Kepala" },
+    { "kanji": "働く", "hiragana": "はたらく", "arti": "Bekerja" },
+    { "kanji": "動物", "hiragana": "どうぶつ", "arti": "Binatang" },
+    { "kanji": "動物園", "hiragana": "どうぶつえん", "arti": "Kebun binatang" },
+    { "kanji": "同じ", "hiragana": "おなじ", "arti": "Sama" },
+    { "kanji": "特急", "hiragana": "とっきゅう", "arti": "Ekspres" },
+    { "kanji": "特別", "hiragana": "とくべつ", "arti": "Khusus" },
+    { "kanji": "入院", "hiragana": "にゅういん", "arti": "Rawat inap" },
+    { "kanji": "入学", "hiragana": "にゅうがく", "arti": "Penerimaan masuk sekolah" },
+    { "kanji": "買い物", "hiragana": "かいもの", "arti": "Belanja" },
+    { "kanji": "買う", "hiragana": "かう", "arti": "Membeli" },
+    { "kanji": "売る", "hiragana": "うる", "arti": "Menjual" },
+    { "kanji": "発車", "hiragana": "はっしゃ", "arti": "Keberangkatan" },
+    { "kanji": "晩ご飯", "hiragana": "ばんごはん", "arti": "Makan malam" },
+    { "kanji": "番組", "hiragana": "ばんぐみ", "arti": "Program" },
+    { "kanji": "病院", "hiragana": "びょういん", "arti": "Rumah sakit" },
+    { "kanji": "病気", "hiragana": "びゅうき", "arti": "Sakit" },
+    { "kanji": "不便", "hiragana": "ふべん", "arti": "Tidak praktis" },
+    { "kanji": "風", "hiragana": "かぜ", "arti": "Angin" },
+    { "kanji": "服", "hiragana": "ふく", "arti": "Pakaian" },
+    { "kanji": "文学", "hiragana": "ぶんがく", "arti": "Sastra" },
+    { "kanji": "聞く", "hiragana": "きく", "arti": "Mendengarkan" },
+    { "kanji": "閉まる", "hiragana": "しまる", "arti": "Menutup" },
+    { "kanji": "別", "hiragana": "べつ", "arti": "Berbeda" },
+    { "kanji": "変", "hiragana": "へん", "arti": "Aneh" },
+    { "kanji": "返す", "hiragana": "かえす", "arti": "Mengembalikan" },
+    { "kanji": "便利", "hiragana": "べんり", "arti": "Praktis" },
+    { "kanji": "勉強", "hiragana": "べんきょう", "arti": "Belajar" },
+    { "kanji": "歩く", "hiragana": "あるく", "arti": "Berjalan" },
+    { "kanji": "母", "hiragana": "はは", "arti": "Ibu saya" },
+    { "kanji": "訪ねる", "hiragana": "たずねる", "arti": "Mengunjungi" },
+    { "kanji": "本屋", "hiragana": "ほんや", "arti": "Toko buku" },
+    { "kanji": "妹", "hiragana": "いもうと", "arti": "Adik perempuan" },
+    { "kanji": "毎朝", "hiragana": "まいあさ", "arti": "Setiap pagi" },
+    { "kanji": "毎晩", "hiragana": "まいばん", "arti": "Setiap malam" },
+    { "kanji": "漫画", "hiragana": "まんが", "arti": "Komik" },
+    { "kanji": "味", "hiragana": "あじ", "arti": "Rasa" },
+    { "kanji": "明るい", "hiragana": "あかるい", "arti": "Terang" },
+    { "kanji": "明日", "hiragana": "あした/あす", "arti": "Besok" },
+    { "kanji": "問題", "hiragana": "もんだい", "arti": "Masalah" },
+    { "kanji": "問題集", "hiragana": "もんだいしゅう", "arti": "Buku kumpulan latihan" },
+    { "kanji": "門", "hiragana": "もん", "arti": "Pintu gerbang" },
+    { "kanji": "夜", "hiragana": "よる", "arti": "Malam" },
+    { "kanji": "野菜", "hiragana": "やさい", "arti": "Sayuran" },
+    { "kanji": "薬", "hiragana": "くすり", "arti": "Obat" },
+    { "kanji": "有名", "hiragana": "ゆうめい", "arti": "Terkenal" },
+    { "kanji": "夕食", "hiragana": "ゆうしょく", "arti": "Makan malam" },
+    { "kanji": "夕方", "hiragana": "ゆうがた", "arti": "Senja" },
+    { "kanji": "洋服", "hiragana": "ようふく", "arti": "Pakaian" },
+    { "kanji": "用意", "hiragana": "ようい", "arti": "Persiapan" },
+    { "kanji": "用紙", "hiragana": "ようし", "arti": "Formulir" },
+    { "kanji": "利用", "hiragana": "りよう", "arti": "Penggunaan" },
+    { "kanji": "理由", "hiragana": "りゆう", "arti": "Alasan" },
+    { "kanji": "立てる", "hiragana": "たてる", "arti": "Mendirikan" },
+    { "kanji": "旅館", "hiragana": "りょかん", "arti": "Penginapan" },
+    { "kanji": "旅行", "hiragana": "りょこう", "arti": "Rekreasi" },
+    { "kanji": "両親", "hiragana": "りょうしん", "arti": "Orang tua" },
+    { "kanji": "料理", "hiragana": "りょうり", "arti": "Masakan" },
+    { "kanji": "良い", "hiragana": "よい", "arti": "Baik" },
+    { "kanji": "林", "hiragana": "はやし", "arti": "Hutan" },
+    { "kanji": "連絡", "hiragana": "れんらく", "arti": "Menghubungi" },
+    { "kanji": "経験", "hiragana": "けいけん", "arti": "Pengalaman" },
+    { "kanji": "港", "hiragana": "みなと", "arti": "Pelabuhan" },
+    { "kanji": "青い", "hiragana": "あおい", "arti": "Biru" }
+    ]
+
+  
+
+    const cards = [];
+
+    data.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const inner = document.createElement('div');
+      inner.className = 'card-inner';
+
+      const front = document.createElement('div');
+      front.className = 'card-front';
+      front.innerHTML = `
+        <div class="kanji">${item.kanji}</div>
+        <div class="hiragana">${item.hiragana}</div>
+      `;
+
+      const back = document.createElement('div');
+      back.className = 'card-back';
+      back.textContent = item.arti;
+
+      inner.appendChild(front);
+      inner.appendChild(back);
+      card.appendChild(inner);
+
+      card.addEventListener('click', () => {
+        // Tutup semua kartu lain
+        cards.forEach(c => {
+          if (c !== card) {
+            c.classList.remove('flipped');
+          }
+        });
+        // Toggle kartu yang diklik
+        card.classList.toggle('flipped');
+      });
+
+      document.body.appendChild(card);
+      cards.push(card); // simpan referensi kartu
+    });
+  </script>
+
+</body>
+</html>
