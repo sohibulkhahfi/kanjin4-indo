@@ -8,11 +8,21 @@
     body {
       font-family: sans-serif;
       display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      background-color: #f0f0f0;
+    }
+
+    .toggle-container {
+      margin-bottom: 1.5rem;
+    }
+
+    .cards-container {
+      display: flex;
       flex-wrap: wrap;
       gap: 1rem;
       justify-content: center;
-      padding: 2rem;
-      background-color: #f0f0f0;
     }
 
     .card {
@@ -68,9 +78,24 @@
       font-size: 1.2rem;
       padding: 1rem;
     }
+
+    .card-back .hiragana {
+      margin-top: 0.5rem;
+      color: #555;
+      font-size: 1rem;
+    }
   </style>
 </head>
 <body>
+
+  <div class="toggle-container">
+    <label>
+      <input type="checkbox" id="toggleHiragana" checked>
+      Tampilkan hiragana
+    </label>
+  </div>
+
+  <div class="cards-container" id="cardsContainer"></div>
 
   <script>
     const data = [
@@ -373,43 +398,56 @@
 
   
 
+    const container = document.getElementById('cardsContainer');
+    const toggle = document.getElementById('toggleHiragana');
     const cards = [];
 
-    data.forEach(item => {
-      const card = document.createElement('div');
-      card.className = 'card';
+    function renderCards() {
+      container.innerHTML = '';
+      data.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'card';
 
-      const inner = document.createElement('div');
-      inner.className = 'card-inner';
+        const inner = document.createElement('div');
+        inner.className = 'card-inner';
 
-      const front = document.createElement('div');
-      front.className = 'card-front';
-      front.innerHTML = `
-        <div class="kanji">${item.kanji}</div>
-        <div class="hiragana">${item.hiragana}</div>
-      `;
+        const front = document.createElement('div');
+        front.className = 'card-front';
+        front.innerHTML = `
+          <div class="kanji">${item.kanji}</div>
+          ${toggle.checked ? `<div class="hiragana">${item.hiragana}</div>` : ''}
+        `;
 
-      const back = document.createElement('div');
-      back.className = 'card-back';
-      back.textContent = item.arti;
+        const back = document.createElement('div');
+        back.className = 'card-back';
+        back.innerHTML = `
+        ${!toggle.checked ? `<div class="hiragana">${item.hiragana}</div>` : ''}
+          <div>${item.arti}</div>
+        `;
 
-      inner.appendChild(front);
-      inner.appendChild(back);
-      card.appendChild(inner);
+        inner.appendChild(front);
+        inner.appendChild(back);
+        card.appendChild(inner);
 
-      card.addEventListener('click', () => {
-        // Tutup semua kartu lain
-        cards.forEach(c => {
-          if (c !== card) {
-            c.classList.remove('flipped');
-          }
+        card.addEventListener('click', () => {
+          cards.forEach(c => {
+            if (c !== card) c.classList.remove('flipped');
+          });
+          card.classList.toggle('flipped');
         });
-        // Toggle kartu yang diklik
-        card.classList.toggle('flipped');
-      });
 
-      document.body.appendChild(card);
-      cards.push(card); // simpan referensi kartu
+        container.appendChild(card);
+        cards.push(card);
+      });
+    }
+
+    // Render awal
+    renderCards();
+
+    // Event saat toggle berubah
+    toggle.addEventListener('change', () => {
+      cards.length = 0; // kosongkan array
+      renderCards();
     });
   </script>
 
