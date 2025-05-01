@@ -430,11 +430,22 @@
         card.appendChild(inner);
 
         card.addEventListener('click', () => {
-          cards.forEach(c => {
-            if (c !== card) c.classList.remove('flipped');
-          });
-          card.classList.toggle('flipped');
+            cards.forEach(c => {
+                  if (c !== card) c.classList.remove('flipped');
+                  });
+                    card.classList.toggle('flipped');
+                    if (!card.classList.contains('flipped')) {
+                    // baru dibuka, jangan baca
+                    return;
+                    }
+                  // Ambil nilai hiragana dan bacakan
+                  const hiraganaEl = card.querySelector('.hiragana');
+                    if (hiraganaEl) {
+                          const hiraganaText = hiraganaEl.textContent.trim();
+                          speakSentence(hiraganaText);
+                    }
         });
+
 
         container.appendChild(card);
         cards.push(card);
@@ -449,6 +460,14 @@
       cards.length = 0; // kosongkan array
       renderCards();
     });
+
+    			// Fungsi untuk membaca teks dengan SpeechSynthesis API
+			function speakSentence(text) {
+				const utterance = new SpeechSynthesisUtterance(text);
+				utterance.lang = "ja-JP"; // Bahasa Jepang
+				utterance.rate = 0.8;
+				speechSynthesis.speak(utterance);
+			}
   </script>
 
 </body>
