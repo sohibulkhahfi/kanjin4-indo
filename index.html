@@ -13,9 +13,62 @@
       padding: 2rem;
       background-color: #f0f0f0;
     }
+    #header {
+            /* position: fixed; */
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        header {
+            background: #6200ea;
+            color: #fff;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            padding: 1rem 0;
+            background: #03dac5;
+        }
+
+        nav button {
+            margin: 0 5px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: white;
+            color: #03dac5;
+            font-weight: bold;
+        }
+
+        nav button:hover {
+            background: #018786;
+            color: white;
+        }
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .flipkanji {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
     .toggle-container {
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
+      margin-top: .5rem;
+      align-items: center;
+      text-align: center;
     }
 
     .cards-container {
@@ -84,18 +137,39 @@
       color: #555;
       font-size: 1rem;
     }
+
+    .card.selected .card-inner {
+       border: 2px solid green;
+    }
+
   </style>
 </head>
 <body>
+  <div id="header">
+    <header>
+        <h1>Kanji N4</h1>
+    </header>
 
-  <div class="toggle-container">
-    <label>
-      <input type="checkbox" id="toggleHiragana" checked>
-      Tampilkan hiragana
-    </label>
+    <nav>
+        <button onclick="showMenu('flipkanji')">Flip Kanji</button>
+        <button onclick="showMenu('listkanji')">List Kanji</button>
+    </nav>
+  </div>
+  <div class="content">
+    <div class="flipkanji">
+      <div class="toggle-container">
+        <label>
+          <input type="checkbox" id="toggleHiragana" checked>
+          Tampilkan hiragana
+        </label>
+      </div>
+      <div class="cards-container" id="cardsContainer"></div> 
+    </div>
+    <div class="listkanji" id="listKanji" style="display: none; margin-top: 1rem;">
+
+    </div>
   </div>
 
-  <div class="cards-container" id="cardsContainer"></div>
 
   <script>
     const data = [
@@ -399,75 +473,105 @@
   
 
     const container = document.getElementById('cardsContainer');
-    const toggle = document.getElementById('toggleHiragana');
-    const cards = [];
+  const toggle = document.getElementById('toggleHiragana');
+  const listContainer = document.getElementById('listKanji');
+  const cards = [];
 
-    function renderCards() {
-      container.innerHTML = '';
-      data.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'card';
+  // Muat data dari localStorage
+  let selectedKanji = JSON.parse(localStorage.getItem('selectedKanji') || '{}');
 
-        const inner = document.createElement('div');
-        inner.className = 'card-inner';
+  function renderCards() {
+    container.innerHTML = '';
+    cards.length = 0;
+    data.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'card';
 
-        const front = document.createElement('div');
-        front.className = 'card-front';
-        front.innerHTML = `
-          <div class="kanji">${item.kanji}</div>
-          ${toggle.checked ? `<div class="hiragana">${item.hiragana}</div>` : ''}
-        `;
+      const inner = document.createElement('div');
+      inner.className = 'card-inner';
 
-        const back = document.createElement('div');
-        back.className = 'card-back';
-        back.innerHTML = `
+      const front = document.createElement('div');
+      front.className = 'card-front';
+      front.innerHTML = `
+        <div class="kanji">${item.kanji}</div>
+        ${toggle.checked ? `<div class="hiragana">${item.hiragana}</div>` : ''}
+      `;
+
+      const back = document.createElement('div');
+      back.className = 'card-back';
+      back.innerHTML = `
         ${!toggle.checked ? `<div class="hiragana">${item.hiragana}</div>` : ''}
-          <div>${item.arti}</div>
-        `;
+        <div>${item.arti}</div>
+      `;
 
-        inner.appendChild(front);
-        inner.appendChild(back);
-        card.appendChild(inner);
+      inner.appendChild(front);
+      inner.appendChild(back);
+      card.appendChild(inner);
 
-        card.addEventListener('click', () => {
-            cards.forEach(c => {
-                  if (c !== card) c.classList.remove('flipped');
-                  });
-                    card.classList.toggle('flipped');
-                    if (!card.classList.contains('flipped')) {
-                    // baru dibuka, jangan baca
-                    return;
-                    }
-                  // Ambil nilai hiragana dan bacakan
-                  const hiraganaEl = card.querySelector('.hiragana');
-                    if (hiraganaEl) {
-                          const hiraganaText = hiraganaEl.textContent.trim();
-                          speakSentence(hiraganaText);
-                    }
+      // Tandai jika termasuk kanji terpilih
+      if (selectedKanji[item.kanji]) {
+        card.classList.add('selected');
+        front.style.background = "#b2f2bb";
+        back.style.background = "#b2f2bb";
+      }
+
+      card.addEventListener('click', () => {
+        cards.forEach(c => {
+          if (c !== card) c.classList.remove('flipped');
         });
+        card.classList.toggle('flipped');
+        if (!card.classList.contains('flipped')) return;
 
-
-        container.appendChild(card);
-        cards.push(card);
+        const hiraganaEl = card.querySelector('.hiragana');
+        if (hiraganaEl) {
+          const hiraganaText = hiraganaEl.textContent.trim();
+          speakSentence(hiraganaText);
+        }
       });
-    }
 
-    // Render awal
-    renderCards();
-
-    // Event saat toggle berubah
-    toggle.addEventListener('change', () => {
-      cards.length = 0; // kosongkan array
-      renderCards();
+      container.appendChild(card);
+      cards.push(card);
     });
+  }
 
-    			// Fungsi untuk membaca teks dengan SpeechSynthesis API
-			function speakSentence(text) {
-				const utterance = new SpeechSynthesisUtterance(text);
-				utterance.lang = "ja-JP"; // Bahasa Jepang
-				utterance.rate = 0.8;
-				speechSynthesis.speak(utterance);
-			}
+  function renderList() {
+    listContainer.innerHTML = '';
+    data.forEach(item => {
+      const div = document.createElement('div');
+      div.innerHTML = `
+        <label>
+          <input type="checkbox" ${selectedKanji[item.kanji] ? 'checked' : ''} 
+            onchange="toggleKanji('${item.kanji}', this.checked)">
+          ${item.kanji}（${item.hiragana}） - ${item.arti}
+        </label>
+      `;
+      listContainer.appendChild(div);
+    });
+  }
+
+  window.toggleKanji = function(kanji, isChecked) {
+    selectedKanji[kanji] = isChecked;
+    if (!isChecked) delete selectedKanji[kanji];
+    localStorage.setItem('selectedKanji', JSON.stringify(selectedKanji));
+    renderCards(); // perbarui tampilan kartu
+  }
+
+  toggle.addEventListener('change', renderCards);
+
+  function speakSentence(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "ja-JP";
+    utterance.rate = 0.8;
+    speechSynthesis.speak(utterance);
+  }
+
+  function showMenu(menu) {
+    document.querySelector('.flipkanji').style.display = (menu === 'flipkanji') ? 'block' : 'none';
+    document.querySelector('.listkanji').style.display = (menu === 'listkanji') ? 'block' : 'none';
+  }
+
+  renderCards();
+  renderList();
   </script>
 
 </body>
