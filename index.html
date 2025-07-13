@@ -10143,6 +10143,11 @@ const typeMap = {
 }
 
   function renderCards(filteredData = data) {
+      if (!Array.isArray(filteredData)) {
+    console.error("❌ filteredData is not an array:", filteredData);
+    return;
+  }
+  
   container.innerHTML = '';
   cards.length = 0;
   filteredData.forEach(item => {
@@ -10154,10 +10159,11 @@ const typeMap = {
 
       const front = document.createElement('div');
       front.className = 'card-front';
-      front.innerHTML = `
-        <div class="kanji">${item.kanji}</div>
-        ${toggle.checked ? `<div class="hiragana">${item.kana}</div>` : ''}
-      `;
+const kanjiDisplay = item.kanji || (!toggle.checked ? item.kana : '');
+front.innerHTML = `
+  <div class="kanji">${kanjiDisplay}</div>
+  ${toggle.checked && item.kanji ? `<div class="hiragana">${item.kana}</div>` : ''}
+`;
 
       const back = document.createElement('div');
       back.className = 'card-back';
@@ -10227,7 +10233,8 @@ window.toggleKanji = function(kanji, isChecked, kana, indonesia) {
 }
 
 
-  toggle.addEventListener('change', renderCards);
+toggle.addEventListener('change', () => renderCards());
+
 
   function speakSentence(text) {
     const utterance = new SpeechSynthesisUtterance(text);
