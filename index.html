@@ -10193,11 +10193,11 @@ if (selectedKanji[key]) {
         card.classList.toggle('flipped');
         if (!card.classList.contains('flipped')) return;
 
-        const hiraganaEl = card.querySelector('.hiragana');
-        if (hiraganaEl) {
-          const hiraganaText = hiraganaEl.textContent.trim();
-          speakSentence(hiraganaText);
-        }
+const textEl = card.querySelector('.hiragana') || card.querySelector('.kanji');
+if (textEl) {
+  const text = textEl.textContent.trim();
+  speakSentence(text);
+}
       });
 
       container.appendChild(card);
