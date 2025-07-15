@@ -10159,7 +10159,7 @@ const typeMap = {
 
       const front = document.createElement('div');
       front.className = 'card-front';
-const kanjiDisplay = item.kanji || (!toggle.checked ? item.kana : '');
+const kanjiDisplay = item.kanji ? item.kanji : item.kana;
 front.innerHTML = `
   <div class="kanji">${kanjiDisplay}</div>
   ${toggle.checked && item.kanji ? `<div class="hiragana">${item.kana}</div>` : ''}
