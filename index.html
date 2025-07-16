@@ -29,29 +29,71 @@
             text-align: center;
         }
 
-        nav {
-            display: flex;
-            justify-content: center;
-            margin: 0;
-            padding: 1rem 0;
-            background: #03dac5;
-        }
+ nav {
+    display: flex;
+    flex-direction: column; /* Ubah arah menjadi kolom secara default (untuk mobile) */
+    justify-content: center;
+    align-items: center; /* Tambahkan ini untuk menengahkan item secara horizontal */
+    margin: 0;
+    padding: 1rem 0;
+    background: #03dac5;
+}
 
-        nav button {
-            margin: 0 5px;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            background: white;
-            color: #03dac5;
-            font-weight: bold;
-        }
+nav > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 
-        nav button:hover {
-            background: #018786;
-            color: white;
-        }
+nav > div > div {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+}
+
+nav button {
+    margin: 5px 0; /* Ubah margin untuk tata letak kolom */
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background: white;
+    color: #03dac5;
+    font-weight: bold;
+}
+
+nav button:hover {
+    background: #018786;
+    color: white;
+}
+
+#typeFilter {
+    padding: 8px;
+}
+
+@media (min-width: 600px) {
+    nav {
+        flex-direction: row; /* Kembali ke tata letak baris pada layar yang lebih lebar */
+        justify-content: center;
+        align-items: center;
+    }
+    
+    nav > div {
+        flex-direction: row;
+    }
+    
+    nav > div > div {
+        flex-direction: row;
+    }
+
+    nav button {
+        margin: 0 5px; /* Kembali ke margin horizontal */
+    }
+
+    #typeFilter {
+        margin-left: 10px;
+    }
+}
 
     .content {
       display: flex;
@@ -121,7 +163,7 @@
 
     .card-front .hiragana {
       font-size: 1rem;
-      color: rgba(0, 0, 0, 0.4);
+      color: black;
       margin-top: 0.5rem;
     }
 
@@ -151,11 +193,17 @@
     </header>
 
     <nav>
-        <button onclick="showMenu('flipkanji')">Flip Kotoba</button>
-        <button onclick="showMenu('listkanji')">List Kotoba</button>
-        <select id="typeFilter" onchange="filterByType()" style="margin-left: 10px; padding: 8px;">
-          <option value="all">All</option>
-        </select>
+        <div>
+            <div>
+                <button onclick="showMenu('flipkanji')">Flip Kotoba</button>
+                <button onclick="showMenu('listkanji')">List Kotoba</button>
+            </div>
+            <div>
+                <select id="typeFilter" onchange="filterByType()"">
+                  <option value="all">All</option>
+                </select>
+            </div>
+        </div>
     </nav>
   </div>
   <div class="content">
